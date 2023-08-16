@@ -1,8 +1,10 @@
-package com.serverless;
+package com.tailoredshapes.dementor;
 
 import java.util.Collections;
 import java.util.Map;
 
+import com.serverless.ApiGatewayResponse;
+import com.serverless.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
