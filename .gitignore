@@ -13,3 +13,4 @@ target
 # Serverless directories
 .serverless
 /.idea/
+/secrets.*.yml

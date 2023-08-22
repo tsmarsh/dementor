@@ -1,23 +1,7 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
-
+org: tsmarsh
+app: dementor
 service: dementor
-# app and org for use with dashboard.serverless.com
-#app: your-app-name
-#org: your-org-name
 
-# You can pin your service to only deploy with a specific Serverless version
-# Check out our docs for more details
 frameworkVersion: '3'
 
 provider:
@@ -26,77 +10,14 @@ provider:
   tracing:
     apiGateway: true
     lambda: true
-  iam:
-    role:
-      statements:
-        - Effect: "Allow"
-          Action:
-            - "xray:PutTraceSegments"
-            - "xray:PutTelemetryRecords"
-          Resource: "*"
-        - Effect: Allow
-          Action:
-            - sqs:SendMessage
-            - sqs:ReceiveMessage
-            - sqs:DeleteMessage
-            - sqs:GetQueueAttributes
-          Resource:
-            - Fn::GetAtt:
-                - UserChatQueue
-                - Arn
-            - Fn::GetAtt:
-                - AnswerQueue
-                - Arn
-        - Effect: Allow
-          Action:
-            - dynamodb:PutItem
-            - dynamodb:GetItem
-            - dynamodb:Query
-            - dynamodb:BatchWriteItem
-          Resource:
-            - Fn::GetAtt:
-                - QuestionsAndAnswersTable
-                - Arn
-            - Fn::Sub:
-                - "${ChatHistoryTableArn}/*"
-                - QuestionsAndAnswersTableArn:
-                    Fn::GetAtt:
-                      - QuestionsAndAnswersTable
-                      - Arn
 
 package:
   artifact: target/dementor-beta.jar
 
 functions:
-  hello:
-    handler: com.tailoredshapes.dementor.WebhookHandler
+  webhook:
+    handler: com.tailoredshapes.dementor.aws.WebhookHandler
 
-resources:
-  Resources:
-    QuestionsAndAnswersTable:
-      Type: "AWS::DynamoDB::Table"
-      Properties:
-        TableName: 'dementor-${opt:stage, self:provider.stage}'
-        AttributeDefinitions:
-          - AttributeName: 'id'
-            AttributeType: 'S'
-          - AttributeName: 'question_id'
-            AttributeType: 'S'
-        KeySchema:
-          - AttributeName: 'id'
-            KeyType: 'HASH'
-          - AttributeName: 'question_id'
-            KeyType: 'RANGE'
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-
-custom:
-  secrets: ${file(secrets.${opt:stage}.yml)}
-  env: ${file(config.${opt:stage}.yml)}
-  scriptHooks:
-    # Run the script after a successful deploy
-    'after:deploy:deploy': ./scripts/update_webhook.sh ./secrets.${opt:stage}.yml
 
 plugins:
   - serverless-offline

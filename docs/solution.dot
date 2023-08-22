@@ -1,0 +1,37 @@
+digraph DementorFlow {
+    // Define Nodes
+    WebHookHandler [label="WebHookHandler Lambda"];
+    QuestionCommandQueue [shape=box3d, label="QuestionCommandQueue"];
+    AnswerCommandQueue [shape=box3d, label="AnswerCommandQueue"];
+    ListCommandQueue [shape=box3d, label="ListCommandQueue"];
+    UndoCommandQueue [shape=box3d, label="UndoCommandQueue"];
+    CompleteCommandQueue [shape=box3d, label="CompleteCommandQueue"];
+    QuestionCommandHandler [label="QuestionCommandHandler"];
+    AnswerCommandHandler [label="AnswerCommandHandler"];
+    ListCommandHandler [label="ListCommandHandler"];
+    UndoCommandHandler [label="UndoCommandHandler"];
+    CompleteCommandHandler [label="CompleteCommandHandler"];
+    DynamoDB [shape=cylinder, label="DynamoDB Table"];
+    S3Bucket [shape=folder, label="S3 Bucket"];
+
+    // Define Edges
+    WebHookHandler -> AnswerCommandQueue [label="Answer Command"];
+    WebHookHandler -> QuestionCommandQueue [label="Question Command"];
+    WebHookHandler -> ListCommandQueue [label="List Command"];
+    WebHookHandler -> UndoCommandQueue [label="Undo Command"];
+    WebHookHandler -> CompleteCommandQueue [label="Complete Command"];
+
+    AnswerCommandQueue -> AnswerCommandHandler;
+    QuestionCommandQueue -> QuestionCommandHandler;
+    ListCommandQueue -> ListCommandHandler;
+    UndoCommandQueue -> UndoCommandHandler;
+    CompleteCommandQueue -> CompleteCommandHandler;
+
+    QuestionCommandHandler -> CompleteCommandQueue [label="All Questions Answered"];
+    AnswerCommandHandler -> QuestionCommandQueue [label="Next Question"];
+
+    AnswerCommandHandler -> DynamoDB [label="Upsert Answer"];
+    AnswerCommandHandler -> S3Bucket [label="Store Audio"];
+    QuestionCommandHandler -> DynamoDB [label="Mark Latest Question"];
+    UndoCommandHandler -> DynamoDB [label="Delete Last Answer"];
+}
