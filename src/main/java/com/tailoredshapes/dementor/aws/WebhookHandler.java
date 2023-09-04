@@ -24,7 +24,7 @@ public class WebhookHandler implements RequestHandler<Map<String, Object>, ApiGa
 
     private final WebhookDelegate webhookDelegate;
 
-    private String welcomeText = "Welcome to Dementor. \n We're going to ask you hundreds of questions to help your bot become more like you.";
+    private final String welcomeText = "Welcome to Dementor. \n We're going to ask you hundreds of questions to help your bot become more like you.";
 
     public WebhookHandler() {
         String apiKey = Environment.getVariable("TELEGRAM_API_KEY");

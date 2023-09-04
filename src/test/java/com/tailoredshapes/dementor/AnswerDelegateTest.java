@@ -27,9 +27,6 @@ class AnswerDelegateTest {
         long chatId = 1L;
         String answer = "Answer";
 
-        // Simulate successful behavior
-        when(repo.answerQuestion(chatId, answer)).thenReturn("Not used"); // Assuming it returns a boolean or void
-
         boolean result = delegate.handle(chatId, answer);
 
         assertTrue(result);

@@ -1,0 +1,11 @@
+digraph ER_Diagram {
+    // Entities
+  Question [label="Question\nPK, QuestionText, Category"];
+Answer [label="Answer\nPK, SK, AnswerText, AnswerFile, ChatId, Timestamp, Deleted"];
+QuestionAssignment [label="QuestionAssignment\nPK, ChatId, QuestionId, AnswerId, Timestamp"];
+
+// Relationships
+  Question -> Answer [label="has"];
+Question -> QuestionAssignment [label="assigned to"];
+Answer -> QuestionAssignment [label="belongs to"];
+}

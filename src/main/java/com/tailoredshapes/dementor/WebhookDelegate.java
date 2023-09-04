@@ -24,7 +24,7 @@ public class WebhookDelegate implements RequestHandler<Map<String, Object>, ApiG
     private final TelegramBot telegramBot;
     private final String welcomeText;
     private final boolean enableTelegram;
-    private Map<String, String> commandToQueue;
+    private final Map<String, String> commandToQueue;
 
     public WebhookDelegate(TelegramBot telegramBot, String welcomeText, boolean enableTelegram, Map<String, String> commandToqueue, MessageSender messageSender) {
         this.telegramBot = telegramBot;

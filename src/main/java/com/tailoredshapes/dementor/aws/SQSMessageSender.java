@@ -8,7 +8,7 @@ import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
 public class SQSMessageSender implements MessageSender {
 
-    private SqsClient sqs;
+    private final SqsClient sqs;
 
     public SQSMessageSender(SqsClient sqs) {
         this.sqs = sqs;

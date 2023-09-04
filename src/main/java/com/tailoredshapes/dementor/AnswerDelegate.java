@@ -1,9 +1,9 @@
 package com.tailoredshapes.dementor;
 
 public class AnswerDelegate {
-    private QuestionRepo repo;
-    private MessageSender sender;
-    private String topic;
+    private final QuestionRepo repo;
+    private final MessageSender sender;
+    private final String topic;
 
     public AnswerDelegate(QuestionRepo repo, MessageSender sender, String topic) {
         this.repo = repo;
