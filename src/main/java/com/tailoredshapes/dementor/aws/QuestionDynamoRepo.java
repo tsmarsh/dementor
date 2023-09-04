@@ -63,6 +63,7 @@ public class QuestionDynamoRepo implements QuestionRepo {
                 .tableName(tableName)
                 .keyConditionExpression("PK = :pk")
                 .expressionAttributeValues(Map.of(":pk", AttributeValue.builder().s("QA#" + chatId).build()))
+                //.expressionAttributeNames(Map.of("#o", "Order"))
                 .limit(1) // Get the latest record only
                 .scanIndexForward(false) // Order by sort key descending
                 .build();
@@ -85,8 +86,9 @@ public class QuestionDynamoRepo implements QuestionRepo {
         QueryRequest queryRequest = QueryRequest.builder()
                 .tableName(tableName)
                 .indexName("OrderIndex")
-                .keyConditionExpression("Order = :order")
+                .keyConditionExpression("#o = :order")
                 .expressionAttributeValues(Map.of(":order", AttributeValue.builder().n(String.valueOf(order + 1)).build()))
+                .expressionAttributeNames(Map.of("#o", "Order"))
                 .build();
 
         QueryResponse queryResponse = dynamoDb.query(queryRequest);

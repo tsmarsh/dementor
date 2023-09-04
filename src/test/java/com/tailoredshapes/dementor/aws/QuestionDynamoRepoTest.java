@@ -1,19 +1,15 @@
 package com.tailoredshapes.dementor.aws;
 
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.regions.Regions;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.utility.DockerImageName;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.Map;
 
@@ -41,30 +37,66 @@ public class QuestionDynamoRepoTest {
 
     @BeforeEach
     public void setUp() {
+        URI endpointOverride = localstack.getEndpointOverride(LocalStackContainer.Service.DYNAMODB);
+        String accessKey = localstack.getAccessKey();
+        String secretKey = localstack.getSecretKey();
+
         dynamoDbClient = DynamoDbClient.builder()
-                .endpointOverride(localstack.getEndpointOverride(LocalStackContainer.Service.DYNAMODB))
+                .endpointOverride(endpointOverride)
                 .credentialsProvider(
                         StaticCredentialsProvider.create(
-                                AwsBasicCredentials.create(localstack.getAccessKey(), localstack.getSecretKey())
+                                AwsBasicCredentials.create(accessKey, secretKey)
                         )
                 ).region(Region.of(localstack.getRegion()))
                 .build();
         repo = new QuestionDynamoRepo(tableName, dynamoDbClient);
 
         CreateTableRequest createTableRequest = CreateTableRequest.builder()
-                .tableName("your-table-name")
-                .keySchema(KeySchemaElement.builder()
-                        .attributeName("PK")
-                        .keyType(KeyType.HASH)
-                        .build())
-                .attributeDefinitions(AttributeDefinition.builder()
-                        .attributeName("PK")
-                        .attributeType(ScalarAttributeType.S)
-                        .build())
-                .provisionedThroughput(ProvisionedThroughput.builder()
-                        .readCapacityUnits(10L)
-                        .writeCapacityUnits(10L)
-                        .build())
+                .attributeDefinitions(
+                        AttributeDefinition.builder()
+                                .attributeName("PK")
+                                .attributeType(ScalarAttributeType.S)
+                                .build(),
+                        AttributeDefinition.builder()
+                                .attributeName("Order")
+                                .attributeType(ScalarAttributeType.N)
+                                .build()
+                )
+                .keySchema(
+                        KeySchemaElement.builder()
+                                .attributeName("PK")
+                                .keyType(KeyType.HASH)
+                                .build()
+                )
+                .provisionedThroughput(
+                        ProvisionedThroughput.builder()
+                                .readCapacityUnits(5L)
+                                .writeCapacityUnits(5L)
+                                .build()
+                )
+                .globalSecondaryIndexes(
+                        GlobalSecondaryIndex.builder()
+                                .indexName("OrderIndex")
+                                .keySchema(
+                                        KeySchemaElement.builder()
+                                                .attributeName("Order")
+                                                .keyType(KeyType.HASH)
+                                                .build()
+                                )
+                                .provisionedThroughput(
+                                        ProvisionedThroughput.builder()
+                                                .readCapacityUnits(5L)
+                                                .writeCapacityUnits(5L)
+                                                .build()
+                                )
+                                .projection(
+                                        Projection.builder()
+                                                .projectionType(ProjectionType.ALL)
+                                                .build()
+                                )
+                                .build()
+                )
+                .tableName(tableName)
                 .build();
 
         dynamoDbClient.createTable(createTableRequest);
@@ -103,10 +135,7 @@ public class QuestionDynamoRepoTest {
 
     @AfterEach
     public void tearDown() {
-        // Clean up resources.
         dynamoDbClient.close();
     }
 
-
-    // Other test cases.
 }
